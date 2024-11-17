@@ -1,8 +1,7 @@
 import "../pages/index.css";
-import { test, openModal, closeModal } from "./modal.js";
+import { openModal, closeModal } from "./modal.js";
 import { initialCards } from "./cards.js";
 import { createCard, cardDelete, handleAddCard } from "./card.js";
-console.log(test(9));
 
 // @todo: Темплейт карточки
 export const cardTemplate = document.querySelector("#card-template");
