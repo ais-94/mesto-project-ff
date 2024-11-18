@@ -107,7 +107,3 @@ popups.forEach((popup) => {
   });
 });
 
-//Действие: Закрыть модальное окно нажатием клавищи Esc
-//document.addEventListener("keydown", handleEscape);
-
-
