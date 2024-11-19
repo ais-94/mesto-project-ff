@@ -47,8 +47,16 @@ function handleProfileFormSubmit(evt) {
   closeModal(modalEdit);
 }
 
+// Функция принимает в вызов карточку и метод вставки
+function renderCard(item, method = "append") {
+  // создаем карточку, передавая обработчики в виде объекта `callbacks`
+  const cardElement = createCard(item, deleteCard, handleImageClick);
+  // вставляем карточку, используя метод (вставится `prepend` или `append`)
+  listSectionUl[ method ](cardElement);
+}
+
 //функция - добавить карточку из модального окна
-function handleAddCard(evt, method = "prepend") {
+function handleAddCard(evt) {
   evt.preventDefault();
   const name = cardForm.querySelector(".popup__input_type_card-name").value;
   const link = cardForm.querySelector(".popup__input_type_url").value;
@@ -56,11 +64,14 @@ function handleAddCard(evt, method = "prepend") {
     name: name,
     link: link,
   };
-  const cardItem = createCard(element, deleteCard, handleImageClick);
-  listSectionUl[method](cardItem);
+  renderCard(element, "prepend")
   cardForm.reset();
   closeModal(modalElementAdd);
 }
+// @todo: Вывести карточки на страницу
+initialCards.forEach(function (element) {
+  renderCard(element, "prepend")
+});
 
 // @todo: Функция окрыть фото
 function handleImageClick(evt) {
@@ -70,12 +81,6 @@ function handleImageClick(evt) {
   imagePopup.alt = imageItem.alt;
   imagename.textContent = imageItem.alt;
 }
-
-// @todo: Вывести карточки на страницу
-initialCards.forEach(function (element) {
-  const cardItem = createCard(element, deleteCard, handleImageClick);
-  listSectionUl.prepend(cardItem);
-});
 
 //Действие: обработчик событий добавить карточку в список вручную
 cardForm.addEventListener("submit", handleAddCard);

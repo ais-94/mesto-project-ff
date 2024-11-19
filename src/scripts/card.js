@@ -2,7 +2,7 @@
 const cardTemplate = document.querySelector("#card-template");
 
 // @todo: Функция создания карточки
-function createCard(item, handleDelete, ShowImage) {
+function createCard(item, handleDelete, showImage) {
   const cardElement = cardTemplate.content.cloneNode(true);
   const cardImage = cardElement.querySelector("img");
   const cardText = cardElement.querySelector("h2");
@@ -19,7 +19,7 @@ function createCard(item, handleDelete, ShowImage) {
   likeButton.addEventListener("click", likeCard);
 
 //Нажатие изображение - открыть изображение на полный экран
-  cardImage.addEventListener("click", ShowImage);
+  cardImage.addEventListener("click", showImage);
 
   return cardElement;
 }
