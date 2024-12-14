@@ -1,7 +1,7 @@
 //Функция - открыть модальное окно
 function openModal(popupModal) {
   popupModal.classList.add("popup_is-animated");
-  
+  //clearValidation(profileForm, validationConfig);
   //Действие: Закрыть модальное окно нажатием клавищи Esc
   document.addEventListener("keydown", handleEscape);
 
@@ -25,3 +25,4 @@ function handleEscape(evt) {
 }
 
 export { openModal, closeModal };
+import { clearValidation, validationConfig } from "./validation.js";

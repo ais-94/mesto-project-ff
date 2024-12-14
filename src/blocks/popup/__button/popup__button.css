@@ -25,3 +25,15 @@
     line-height: 17px;
   }
 }
+
+/*Добавлено*/
+
+/*Кнопка неактивная*/
+.popup__button_disabled {
+  background: rgba(0, 0, 0, 0.2);
+  opacity: 0.2;
+  color: #000000;
+  border: #000000;
+  transition: visibility 0s, background 0.3s;
+}
+
