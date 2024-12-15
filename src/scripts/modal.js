@@ -25,4 +25,3 @@ function handleEscape(evt) {
 }
 
 export { openModal, closeModal };
-import { clearValidation, validationConfig } from "./validation.js";

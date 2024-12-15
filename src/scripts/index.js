@@ -1,28 +1,24 @@
 import "../pages/index.css";
 import { openModal, closeModal } from "./modal.js";
 import { createCardAdd } from "./card";
-import {
-  hideInputError,
-  enableValidation,
-  validationConfig,
-  clearValidation,
-} from "./validation.js";
+import { enableValidation, clearValidation } from "./validation.js";
 import {
   changeAvatar,
   getInitialCards,
-  UsersAbout,
+  getUsetInfo,
   changeUsersData,
   AddCardPost,
-  renderLoading,
+  addLike,
+  deleteLike,
+  deleteCard,
 } from "./api.js";
-
 
 // @todo: DOM узлы
 const listSectionUl = document.querySelector(".places__list");
 
 //Модальное окно/кнопки/поля ввода для редактирования профиля
 const modalEdit = document.querySelector(".popup_type_edit"); //*Модальное окно редактирования профиля
-export const profileForm = document.querySelector(".popup__form"); //форма для ввода данных редактирования профиля
+const profileForm = document.querySelector(".popup__form"); //форма для ввода данных редактирования профиля
 const buttonEdit = document.querySelector(".profile__edit-button"); //кнопка редактировать профиль
 
 //Модальное окно/кнопки/поля ввода (добавить карточку)
@@ -42,7 +38,7 @@ const imagename = popupPhotoContainer.querySelector(".popup__caption"); //под
 const nameInput = profileForm.querySelector(".popup__input_type_name");
 const jobInput = profileForm.querySelector(".popup__input_type_description");
 const avatarForm = document.querySelector(".popup__form__avatar"); //форма для ввода данных редактирования профиля
-const AvatarInput = avatarForm.querySelector(".popup__input_type_url_avatar");
+const avatarInput = avatarForm.querySelector(".popup__input_type_url_avatar");
 
 // Выберите элементы, куда должны быть вставлены значения полей
 const profile = document.querySelector(".profile__info");
@@ -57,6 +53,15 @@ const profileAvatarInput = document.querySelector(
 
 let userId = "";
 
+const validationConfig = {
+  formSelector: ".popup__form", //
+  inputSelector: ".popup__input", //
+  submitButtonSelector: ".popup__button", //
+  inactiveButtonClass: "popup__button_disabled", //
+  inputErrorClass: "popup__input_type_error", //
+  errorClass: "popup__error_visible", //
+};
+
 // @todo: Функция окрыть фото
 function handleImageClick(evt) {
   const imageItem = evt.target.closest(".card__image");
@@ -69,10 +74,23 @@ function handleImageClick(evt) {
 // Функция принимает в вызов карточку и метод вставки @
 function renderCard(item, userId, handleImageClick) {
   // создаем карточку, передавая обработчики в виде объекта `callbacks`
-  const cardElement = createCardAdd(item, userId, handleImageClick);
+  const cardElement = createCardAdd(
+    item,
+    userId,
+    handleImageClick,
+    likeCard,
+    deleteMyCard
+  );
   // вставляем карточку, используя метод (вставится `prepend` или `append`)
   //listSectionUl[ method ](cardElement);
   listSectionUl.append(cardElement);
+}
+export function renderLoading(isLoading, button) {
+  if (isLoading) {
+    button.textContent = "Сохранение...";
+  } else {
+    button.textContent = "Сохранить";
+  }
 }
 
 //Функция добавить карточку
@@ -84,7 +102,13 @@ function handleAddCard(evt) {
   renderLoading(true, button);
   AddCardPost({ name, link })
     .then((item) => {
-      const cardElement = createCardAdd(item, userId, handleImageClick);
+      const cardElement = createCardAdd(
+        item,
+        userId,
+        handleImageClick,
+        likeCard,
+        deleteMyCard
+      );
       listSectionUl.prepend(cardElement);
       cardForm.reset();
       closeModal(modalElementAdd);
@@ -109,8 +133,8 @@ function handleProfileFormSubmit(evt) {
   };
   changeUsersData(person)
     .then((res) => {
-      profileName.textContent = person.personName;
-      profileJob.textContent = person.occupation;
+      profileName.textContent = res.name;
+      profileJob.textContent = res.about;
       closeModal(modalEdit);
     })
     .catch((err) => {
@@ -127,13 +151,55 @@ function handleAvatarFormSubmit(evt) {
   evt.preventDefault();
   const button = avatarForm.querySelector(".popup__button");
   renderLoading(true, button);
-  changeAvatar(profileAvatarInput.value);
-  clearValidation(avatarForm, validationConfig);
-  closeModal(modalAvatar);
+  const person = profileAvatarInput.value;
+  changeAvatar(person)
+    .then((res) => {
+      buttonAvatar.src = res.avatar;
+      avatarForm.reset();
+      closeModal(modalAvatar);
+    })
+    .catch((err) => {
+      console.log(err);
+    })
+    .finally(() => {
+      clearValidation(modalEdit, validationConfig);
+      renderLoading(false, button);
+    });
+}
+
+//Функция лайка карточки
+function likeCard(evt, cardId) {
+  const likeQuantity = evt.target.parentNode.querySelector(
+    ".card__like-quantity"
+  );
+
+  const likeMethod = evt.target.classList.contains(
+    "card__like-button_is-active"
+  )
+    ? deleteLike
+    : addLike;
+  likeMethod(cardId)
+    .then((likeData) => {
+      evt.target.classList.toggle("card__like-button_is-active");
+      likeQuantity.textContent = likeData.likes.length;
+    })
+    .catch((err) => console.log(err));
+}
+
+//Функция удаления карточки вручную
+function deleteMyCard(evt, itemid) {
+  deleteCard(itemid)
+    .then(() => {
+      const listItem = evt.target.closest(".places__item");
+      listItem.remove();
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 }
 
 //Показать все карточки
-Promise.all([UsersAbout(), getInitialCards()])
+Promise.all([getUsetInfo(), getInitialCards()])
   .then((res) => {
     const userInfo = res[0];
     userId = userInfo._id;
@@ -172,13 +238,11 @@ popups.forEach((popup) => {
   popup.addEventListener("mousedown", (evt) => {
     if (evt.target.classList.contains("popup_is-opened")) {
       closeModal(popup);
-    }
-    if (evt.target.classList.contains("popup__close")) {
+    } else if (evt.target.classList.contains("popup__close")) {
       closeModal(popup);
     }
     //clearValidation(popup, validationConfig)
-  }
- );
+  });
 });
 
 //Действие: Клик открыть модальное изменить аватар
@@ -189,5 +253,5 @@ buttonAvatar.addEventListener("click", function () {
 avatarForm.addEventListener("submit", handleAvatarFormSubmit);
 
 // Вызов ф-ции валидации
-enableValidation();
-hideInputError;
+enableValidation(validationConfig);
+//hideInputError(validationConfig);
