@@ -8,6 +8,8 @@
   background-position: center;
   margin: 0 29px 0 0;
 transition: 0.3s ease;
+/*Добавлено*/
+object-fit: cover;
 }
 
 @media screen and (max-width: 740px) {
