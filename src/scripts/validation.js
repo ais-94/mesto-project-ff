@@ -91,8 +91,11 @@ export const clearValidation = (formElement, config) => {
   const inputList = Array.from(
     formElement.querySelectorAll(config.inputSelector)
   );
+  const buttonElement = formElement.querySelector(config.submitButtonSelector);
   inputList.forEach((inputElement) => {
     hideInputError(formElement, inputElement, config);
     inputElement.setCustomValidity("");
+    //disableSubmitButton(submitButtonSelector, config);
   });
+  disableSubmitButton(buttonElement, config);
 };

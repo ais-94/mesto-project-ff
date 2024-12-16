@@ -41,7 +41,7 @@ export const changeUsersData = (person) => {
 };
 
 //Добавление новой карточки
-export const AddCardPost = (cards) => {
+export const addCardPost = (cards) => {
   return fetch(`${config.baseUrl}/cards`, {
     method: "POST",
     headers: config.headers,

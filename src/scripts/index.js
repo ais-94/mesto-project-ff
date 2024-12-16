@@ -7,7 +7,7 @@ import {
   getInitialCards,
   getUsetInfo,
   changeUsersData,
-  AddCardPost,
+  addCardPost,
   addLike,
   deleteLike,
   deleteCard,
@@ -100,7 +100,7 @@ function handleAddCard(evt) {
   const name = cardForm.querySelector(".popup__input_type_card-name").value;
   const link = cardForm.querySelector(".popup__input_type_url").value;
   renderLoading(true, button);
-  AddCardPost({ name, link })
+  addCardPost({ name, link })
     .then((item) => {
       const cardElement = createCardAdd(
         item,
